@@ -6,19 +6,21 @@ public class GameBoostrap : MonoBehaviour
 {
     [SerializeField] private BoardView boardView;
     [SerializeField] private BoardCameraFitter cameraFitter;
+    [SerializeField] private BoardInputHandler boardInputHandler;
+    [SerializeField] private CandyDatabase candyDatabase;
+    [Header("Board Settings")]
+    [SerializeField] private int width = 8;
+    [SerializeField] private int height = 8;
+
     private void Start()
     {
-        BoardState board = new BoardState
-        {
-            Width = 8,
-            Height = 8,
-            Cells = new Cell[8,8]
+        BoardGenerator generator = new BoardGenerator(candyDatabase);
 
-        };
-        BoardGenerator generator = new BoardGenerator();
-        generator.Generate(board);
+        BoardState board = generator.Generate(width, height);
+
         boardView.Render(board);
         cameraFitter.Fit(board.Width, board.Height, boardView.CellSize);
+        boardInputHandler.Initialize(board);
     }
-   
+
 }

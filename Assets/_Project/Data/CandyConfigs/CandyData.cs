@@ -7,4 +7,5 @@ public class CandyData : ScriptableObject
 {
     public CandyType Type;
     public Sprite Sprite;
+    public bool CanSpawn = true;
 }

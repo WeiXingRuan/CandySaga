@@ -228,6 +228,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   padding: 2
+--- !u!1 &233317594
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 233317596}
+  - component: {fileID: 233317595}
+  m_Layer: 0
+  m_Name: InputReader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &233317595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233317594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c078c8243d5395246be5ec039a2d5754, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &233317596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233317594}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1966029766
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,6 +282,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1966029768}
   - component: {fileID: 1966029767}
+  - component: {fileID: 1966029769}
   m_Layer: 0
   m_Name: BoardView
   m_TagString: Untagged
@@ -276,6 +321,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1966029769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1966029766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfd9db9ffec06984d8129b17da1b4f03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputReader: {fileID: 233317595}
+  boardView: {fileID: 1966029767}
 --- !u!1 &2076750634
 GameObject:
   m_ObjectHideFlags: 0
@@ -307,6 +366,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boardView: {fileID: 1966029767}
   cameraFitter: {fileID: 97659527}
+  boardInputHandler: {fileID: 1966029769}
+  candyDatabase: {fileID: 11400000, guid: 91c083e637ae1874ab37d4a10ba49f59, type: 2}
+  width: 8
+  height: 8
 --- !u!4 &2076750636
 Transform:
   m_ObjectHideFlags: 0
@@ -329,3 +392,4 @@ SceneRoots:
   - {fileID: 97659526}
   - {fileID: 2076750636}
   - {fileID: 1966029768}
+  - {fileID: 233317596}
