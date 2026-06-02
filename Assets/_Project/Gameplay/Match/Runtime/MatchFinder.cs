@@ -19,9 +19,9 @@ public class MatchFinder
             int count = 1; 
             for (int x= 1; x<board.Width; x++)
             {
-                CandyType current = board.Cells[x, y].Candy.Type;
-                CandyType previous = board.Cells[x - 1, y].Candy.Type;
-                if (current ==previous)
+                Candy currentCandy = board.Cells[x, y].Candy;
+                Candy previousCandy = board.Cells[x - 1, y].Candy;
+                if (currentCandy != null && previousCandy != null && currentCandy.Type == previousCandy.Type)
                 {
                     count++;
                 }
@@ -35,17 +35,17 @@ public class MatchFinder
                     }
                     count = 1;
                 }
-                if (count >= 3)
-                {
-                    CreateHorizontalMatch(
-                        board,
-                        matches,
-                        board.Width - count,
-                        y,
-                        count);
-                }
+                
             }
-
+            if (count >= 3)
+            {
+                CreateHorizontalMatch(
+                    board,
+                    matches,
+                    board.Width - count,
+                    y,
+                    count);
+            }
         }
     }
     private void FindVertical(
@@ -58,13 +58,13 @@ public class MatchFinder
 
             for (int y = 1; y < board.Height; y++)
             {
-                CandyType current =
-                    board.Cells[x, y].Candy.Type;
+                Candy currentCandy =
+                    board.Cells[x, y].Candy;
 
-                CandyType previous =
-                    board.Cells[x, y - 1].Candy.Type;
+                Candy previousCandy =
+                    board.Cells[x, y - 1].Candy;
 
-                if (current == previous)
+                if (currentCandy != null && previousCandy != null && currentCandy.Type == previousCandy.Type)
                 {
                     count++;
                 }

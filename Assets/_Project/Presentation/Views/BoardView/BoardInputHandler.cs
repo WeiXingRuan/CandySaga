@@ -11,12 +11,16 @@ public class BoardInputHandler : MonoBehaviour
     private BoardSwapper boardSwapper;
     private MatchFinder matchFinder;
     private CandyView selectedCandy;
+    private BoardDestroyer boardDestroyer;
+    private BoardGravity boardGravity;
 
     public void Initialize(BoardState board)
     {
         boardState = board;
         boardSwapper = new BoardSwapper();
         matchFinder = new MatchFinder();
+        boardDestroyer = new BoardDestroyer();
+        boardGravity = new BoardGravity();
     }
 
     private void OnEnable()
@@ -64,18 +68,16 @@ public class BoardInputHandler : MonoBehaviour
 
         Debug.Log($"Can swap: {selectedCandy.X},{selectedCandy.Y} <-> {candy.X},{candy.Y}");
         SwapCandies(selectedCandy, candy);
-        MatchFinder finder = new MatchFinder();
+        var matches = matchFinder.FindMatches(boardState);
 
-        var matches = finder.FindMatches(boardState);
-
-        if(matches.Count == 0)
+        if (matches.Count == 0)
         {
             Debug.Log("No matches found, swapping back");
             SwapCandies(selectedCandy, candy);
         }    
         else
         {
-            Debug.Log($"Match Count: {matches.Count}");
+            ResolveBoard(); 
         }    
         
         selectedCandy = null;
@@ -90,6 +92,23 @@ public class BoardInputHandler : MonoBehaviour
             second.Y);
 
         boardView.SwapViews(first, second);
+
+    }
+    private void ResolveBoard()
+    {
+        while (true)
+        {
+            List<MatchGroup> matches = matchFinder.FindMatches(boardState);
+
+            if (matches.Count == 0)
+                break;
+
+            boardDestroyer.DestroyMatches(matches);
+            boardView.RemoveCandyViews(matches);
+
+            List<CandyMove> moves = boardGravity.ApplyGravity(boardState);
+            boardView.ApplyCandyMoves(moves);
+        }
     }
     private bool AreAdjacent(CandyView a, CandyView b)
     {
