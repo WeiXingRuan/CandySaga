@@ -1,45 +1,63 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class BoardInputHandler : MonoBehaviour
 {
-    [SerializeField] BoardInputReader inputReader;
-    [SerializeField] BoardView boardView;
+    [SerializeField] private BoardInputReader inputReader;
+    [SerializeField] private BoardView boardView;
 
-    private BoardState boardState;
-    private BoardSwapper boardSwapper;
-    private MatchFinder matchFinder;
+    private SwapSystem swapSystem;
+    private CandyAnimator candyAnimator;
     private CandyView selectedCandy;
-    private BoardDestroyer boardDestroyer;
-    private BoardGravity boardGravity;
+    private Coroutine selectedLoopCoroutine;
+    private bool isBusy;
 
-    public void Initialize(BoardState board)
+    public void Initialize(BoardState board, CandyDatabase candyDatabase)
     {
-        boardState = board;
-        boardSwapper = new BoardSwapper();
-        matchFinder = new MatchFinder();
-        boardDestroyer = new BoardDestroyer();
-        boardGravity = new BoardGravity();
+        BoardResolver boardResolver = new BoardResolver(
+            new MatchFinder(),
+            new BoardDestroyer(),
+            new BoardGravity(),
+            new BoardRefiller(candyDatabase),
+            boardView
+        );
+
+        swapSystem = new SwapSystem(
+            board,
+            new BoardSwapper(),
+            boardResolver,
+            boardView
+        );
+
+        candyAnimator = new CandyAnimator();
     }
 
     private void OnEnable()
     {
         inputReader.PointerDown += HandlePointerDown;
     }
+
     private void OnDisable()
     {
         inputReader.PointerDown -= HandlePointerDown;
     }
+
     private void HandlePointerDown(Vector2 screenPosition)
     {
+        if (isBusy)
+            return;
+
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(screenPosition);
         RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+
         if (hit.collider == null)
             return;
+
         CandyView candyView = hit.collider.GetComponent<CandyView>();
+
         if (candyView == null)
             return;
+
         SelectCandy(candyView);
     }
 
@@ -47,69 +65,90 @@ public class BoardInputHandler : MonoBehaviour
     {
         if (selectedCandy == null)
         {
-            selectedCandy = candy;
+            SelectNewCandy(candy);
             Debug.Log($"Selected: {candy.X}, {candy.Y}");
             return;
         }
 
         if (selectedCandy == candy)
         {
-            selectedCandy = null;
+            UnselectCurrentCandy();
             Debug.Log("Unselected");
             return;
         }
 
         if (!AreAdjacent(selectedCandy, candy))
         {
-            selectedCandy = candy;
+            ChangeSelection(candy);
             Debug.Log($"Changed selection: {candy.X}, {candy.Y}");
             return;
         }
 
         Debug.Log($"Can swap: {selectedCandy.X},{selectedCandy.Y} <-> {candy.X},{candy.Y}");
-        SwapCandies(selectedCandy, candy);
-        var matches = matchFinder.FindMatches(boardState);
 
-        if (matches.Count == 0)
-        {
-            Debug.Log("No matches found, swapping back");
-            SwapCandies(selectedCandy, candy);
-        }    
-        else
-        {
-            ResolveBoard(); 
-        }    
-        
+        StartCoroutine(SwapSelectedCandy(candy));
+    }
+
+    private void SelectNewCandy(CandyView candy)
+    {
+        selectedCandy = candy;
+
+        StartCoroutine(candyAnimator.AnimateSelect(selectedCandy.transform));
+
+        selectedLoopCoroutine =
+            StartCoroutine(candyAnimator.AnimateSelectedLoop(selectedCandy.transform));
+    }
+
+    private void UnselectCurrentCandy()
+    {
+        StopSelectedLoop();
+
+        StartCoroutine(candyAnimator.AnimateUnselect(selectedCandy.transform));
+
         selectedCandy = null;
     }
-    private void SwapCandies(CandyView first, CandyView second)
+
+    private void ChangeSelection(CandyView newCandy)
     {
-        boardSwapper.Swap(
-            boardState,
-            first.X,
-            first.Y,
-            second.X,
-            second.Y);
+        StopSelectedLoop();
 
-        boardView.SwapViews(first, second);
+        StartCoroutine(candyAnimator.AnimateUnselect(selectedCandy.transform));
 
+        selectedCandy = newCandy;
+
+        StartCoroutine(candyAnimator.AnimateSelect(selectedCandy.transform));
+
+        selectedLoopCoroutine =
+            StartCoroutine(candyAnimator.AnimateSelectedLoop(selectedCandy.transform));
     }
-    private void ResolveBoard()
+
+    private IEnumerator SwapSelectedCandy(CandyView targetCandy)
     {
-        while (true)
-        {
-            List<MatchGroup> matches = matchFinder.FindMatches(boardState);
+        isBusy = true;
 
-            if (matches.Count == 0)
-                break;
+        CandyView first = selectedCandy;
+        CandyView second = targetCandy;
 
-            boardDestroyer.DestroyMatches(matches);
-            boardView.RemoveCandyViews(matches);
+        StopSelectedLoop();
 
-            List<CandyMove> moves = boardGravity.ApplyGravity(boardState);
-            boardView.ApplyCandyMoves(moves);
-        }
+        yield return candyAnimator.AnimateUnselect(first.transform);
+
+        selectedCandy = null;
+
+        yield return swapSystem.TrySwap(first, second);
+
+        isBusy = false;
     }
+
+    private void StopSelectedLoop()
+    {
+        if (selectedLoopCoroutine == null)
+            return;
+
+        StopCoroutine(selectedLoopCoroutine);
+        selectedLoopCoroutine = null;
+    }
+
     private bool AreAdjacent(CandyView a, CandyView b)
     {
         int distanceX = Mathf.Abs(a.X - b.X);
@@ -118,4 +157,3 @@ public class BoardInputHandler : MonoBehaviour
         return distanceX + distanceY == 1;
     }
 }
-

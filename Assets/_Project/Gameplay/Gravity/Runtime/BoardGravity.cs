@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardGravity : MonoBehaviour
+public class BoardGravity
 {
     public List<CandyMove> ApplyGravity(BoardState board)
     {

@@ -20,7 +20,7 @@ public class GameBoostrap : MonoBehaviour
 
         boardView.Render(board);
         cameraFitter.Fit(board.Width, board.Height, boardView.CellSize);
-        boardInputHandler.Initialize(board);
+        boardInputHandler.Initialize(board, candyDatabase);
     }
 
 }

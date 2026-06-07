@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class CandyView : MonoBehaviour
 {
-    
+    public Candy Candy { get; private set; }
     private SpriteRenderer spriteRenderer;
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -16,11 +16,14 @@ public class CandyView : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Setup(CandyData data, int x, int y)
+    public void Setup(Candy candy, int x, int y)
     {
-        spriteRenderer.sprite = data.Sprite;
+        Candy = candy;
+
         X = x;
         Y = y;
+
+        spriteRenderer.sprite = candy.Data.Sprite;
     }
     public void SetGridPosition(int x, int y)
     {
