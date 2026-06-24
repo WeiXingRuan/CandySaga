@@ -33,7 +33,7 @@ public class SwapSystem
             yield break;
         }
 
-        boardResolver.Resolve(boardState);
+        yield return boardResolver.Resolve(boardState);
     }
 
     private IEnumerator SwapCandies(CandyView first, CandyView second)

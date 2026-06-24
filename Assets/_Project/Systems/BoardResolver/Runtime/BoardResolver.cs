@@ -30,7 +30,7 @@ public class BoardResolver
         return matches.Count > 0;
     }
 
-    public void Resolve(BoardState boardState)
+    public IEnumerator Resolve(BoardState boardState)
     {
         while (true)
         {
@@ -39,14 +39,15 @@ public class BoardResolver
             if (matches.Count == 0)
                 break;
 
+            yield return boardView.DestroyCandyViews(matches);
+
             boardDestroyer.DestroyMatches(matches);
-            boardView.RemoveCandyViews(matches);
 
             List<CandyMove> moves = boardGravity.ApplyGravity(boardState);
-            boardView.ApplyCandyMoves(moves);
+            yield return boardView.ApplyCandyMoves(moves);
 
             List<CandySpawn> spawns = boardRefiller.Refill(boardState);
-            boardView.SpawnCandyViews(spawns);
+            yield return boardView.SpawnCandyViews(spawns);
         }
     }
 }

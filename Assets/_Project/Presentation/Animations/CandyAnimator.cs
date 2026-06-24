@@ -84,4 +84,70 @@ public class CandyAnimator
         first.position = firstTargetPosition;
         second.position = secondTargetPosition;
     }
+    public IEnumerator AnimateMove(
+    Transform target,
+    Vector3 targetPosition,
+    float duration = 0.15f)
+    {
+        Vector3 startPosition = target.position;
+
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+
+            float t = timer / duration;
+
+            target.position =
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    t);
+
+            yield return null;
+        }
+
+        target.position = targetPosition;
+    }
+    public IEnumerator AnimateDestroy(Transform target)
+    {
+        Vector3 startScale = target.localScale;
+        Vector3 popScale = startScale * 1.2f;
+
+        float duration = 0.15f;
+        float timer = 0f;
+
+        while (timer < duration * 0.5f)
+        {
+            timer += Time.deltaTime;
+
+            float t = timer / (duration * 0.5f);
+
+            target.localScale =
+                Vector3.Lerp(
+                    startScale,
+                    popScale,
+                    t);
+
+            yield return null;
+        }
+
+        timer = 0f;
+
+        while (timer < duration * 0.5f)
+        {
+            timer += Time.deltaTime;
+
+            float t = timer / (duration * 0.5f);
+
+            target.localScale =
+                Vector3.Lerp(
+                    popScale,
+                    Vector3.zero,
+                    t);
+
+            yield return null;
+        }
+    }
 }
